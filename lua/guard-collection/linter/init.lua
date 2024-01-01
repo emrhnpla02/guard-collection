@@ -11,6 +11,7 @@ return {
   ktlint = require('guard-collection.linter.ktlint'),
   luacheck = require('guard-collection.linter.luacheck'),
   sqlfluff = require('guard-collection.linter.sqlfluff'),
+  statix = require('guard-collection.linter.statix'),
   pylint = require('guard-collection.linter.pylint'),
   rubocop = require('guard-collection.linter.rubocop'),
   selene = require('guard-collection.linter.selene'),

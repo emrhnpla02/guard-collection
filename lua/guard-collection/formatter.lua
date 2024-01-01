@@ -118,6 +118,11 @@ M.nixfmt = {
   stdin = true,
 }
 
+M['nixpkgs-fmt'] = {
+  cmd = 'nixpkgs-fmt',
+  stdin = true,
+}
+
 M.ormolu = {
   cmd = 'ormolu',
   args = { '--color', 'never', '--stdin-input-file' },
