@@ -41,6 +41,12 @@ M.djhtml = {
   stdin = true,
 }
 
+M.docformatter = {
+  cmd = 'docformatter',
+  args = { '-' },
+  stdin = true,
+}
+
 M.dprint = {
   cmd = 'dprint',
   args = { 'fmt', '--stdin' },
@@ -50,8 +56,8 @@ M.dprint = {
 }
 
 M.eslint_d = {
-  cmd = 'eslint_d',
-  args = { '--fix-to-stdout', '--stdin', '--stdin-filename' },
+  cmd = 'npx',
+  args = { 'eslint_d', '--fix-to-stdout', '--stdin', '--stdin-filename' },
   fname = true,
   stdin = true,
 }
@@ -101,6 +107,12 @@ M.ktlint = {
   stdin = true,
 }
 
+M.ktfmt = {
+  cmd = 'ktfmt',
+  args = { '-' },
+  stdin = true,
+}
+
 M.latexindent = {
   cmd = 'latexindent',
   stdin = true,
@@ -136,10 +148,36 @@ M.pg_format = {
 }
 
 M.prettier = {
-  cmd = 'prettier',
-  args = { '--stdin-filepath' },
+  cmd = 'npx',
+  args = { 'prettier', '--stdin-filepath' },
   fname = true,
   stdin = true,
+}
+
+M.prettierd = {
+  fn = function(buf, range)
+    if vim.fn.has('nvim-0.10') ~= 1 then
+      vim.notify('[guard-collection]: prettierd uses vim.system introduced in nvim 0.10', 4)
+      return
+    end
+    local srow = range and range['start'][1] or 0
+    local erow = range and range['end'][1] or -1
+    local handle = vim.system(
+      { 'prettierd', vim.api.nvim_buf_get_name(buf) },
+      {
+        stdin = true,
+      },
+      vim.schedule_wrap(function(result)
+        if result.code ~= 0 then
+          return
+        end
+        vim.api.nvim_buf_set_lines(buf, srow, erow, false, vim.split(result.stdout, '\r?\n'))
+        vim.cmd('silent! noautocmd write!')
+      end)
+    )
+    handle:write(table.concat(vim.api.nvim_buf_get_lines(buf, srow, erow, false), '\n'))
+    handle:write(nil)
+  end,
 }
 
 M.rubocop = {
@@ -152,6 +190,15 @@ M.rubocop = {
 M.rustfmt = {
   cmd = 'rustfmt',
   args = { '--edition', '2021', '--emit', 'stdout' },
+  stdin = true,
+}
+
+-- Use the nightly version of `rustfmt` even in projects based on the stable toolchain
+-- The nightly version allows using more settings e.g. `wrap_comments` or `imports_granularity`
+-- Details: https://rust-lang.github.io/rustfmt/
+M.rustfmt_nightly = {
+  cmd = 'rustup',
+  args = { 'run', 'nightly', 'rustfmt', '--edition', '2021', '--emit', 'stdout' },
   stdin = true,
 }
 
@@ -222,6 +269,13 @@ M.zigfmt = {
   cmd = 'zig',
   args = { 'fmt', '--stdin' },
   stdin = true,
+}
+
+M.biome = {
+  cmd = 'biome',
+  args = { 'format', '--write' },
+  fname = true,
+  stdin = false,
 }
 
 return M
